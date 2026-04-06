@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="010" author="developer">
+        <comment>Создание индексов для оптимизации запросов</comment>
+
+        <!-- Индексы для таблицы ROOM -->
+        <createIndex schemaName="map_app" tableName="room" indexName="idx_room_building_floor">
+            <column name="building_id"/>
+            <column name="floor_number"/>
+        </createIndex>
+
+        <!-- Индексы для таблицы TECHNICAL -->
+        <createIndex schemaName="map_app" tableName="technical" indexName="idx_technical_building_floor">
+            <column name="building_id"/>
+            <column name="floor_number"/>
+        </createIndex>
+
+        <!-- GIN-индекс для массива linked -->
+        <sql>
+            CREATE INDEX idx_technical_linked ON map_app.technical USING GIN (linked);
+        </sql>
+
+        <!-- Индексы для таблицы ENTRANCE -->
+        <createIndex schemaName="map_app" tableName="entrance" indexName="idx_entrance_building_floor">
+            <column name="building_id"/>
+            <column name="floor_number"/>
+        </createIndex>
+
+        <!-- Индексы для таблицы PATH_CACHE -->
+        <createIndex schemaName="map_app" tableName="path_cache" indexName="idx_path_cache_building">
+            <column name="building_id"/>
+        </createIndex>
+
+        <!-- Триггер для автоматического обновления updated_at в таблице grid -->
+        <sql splitStatements="false">
+            -- Триггер создаётся в отдельном SQL файле
+        </sql>
+        <sqlFile path="sql/010-create-trigger.sql" relativeToChangelogFile="true" splitStatements="false"/>
+
+        <rollback>
+            <dropIndex schemaName="map_app" tableName="room" indexName="idx_room_building_floor"/>
+            <dropIndex schemaName="map_app" tableName="technical" indexName="idx_technical_building_floor"/>
+            <sql>
+                DROP INDEX IF EXISTS map_app.idx_technical_linked;
+            </sql>
+            <dropIndex schemaName="map_app" tableName="entrance" indexName="idx_entrance_building_floor"/>
+            <dropIndex schemaName="map_app" tableName="path_cache" indexName="idx_path_cache_building"/>
+            <sql>
+                DROP TRIGGER IF EXISTS update_grid_updated_at ON map_app.grid;
+                DROP FUNCTION IF EXISTS map_app.update_updated_at_column();
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="006" author="developer">
+        <comment>Создание таблицы TECHNICAL (Технические объекты)</comment>
+        <createTable schemaName="map_app" tableName="technical">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="building_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="floor_number" type="varchar(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="varchar(500)"/>
+            <column name="type" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="coordinates" type="jsonb"/>
+            <column name="has_entrance" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="linked" type="uuid[]"/>
+        </createTable>
+
+        <addDefaultValue schemaName="map_app" tableName="technical" columnName="id" defaultValueComputed="uuid_generate_v4()"/>
+
+        <sql>
+            ALTER TABLE map_app.technical
+            ADD CONSTRAINT fk_technical_building
+            FOREIGN KEY (building_id)
+            REFERENCES map_app.building(id);
+        </sql>
+
+        <rollback>
+            <dropTable schemaName="map_app" tableName="technical"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

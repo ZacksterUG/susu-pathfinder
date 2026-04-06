@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  # PostgreSQL база данных
+  postgres:
+    image: postgres:15-alpine
+    container_name: map_app_postgres
+    environment:
+      POSTGRES_DB: map_app
+      POSTGRES_USER: map_app_user
+      POSTGRES_PASSWORD: map_app_password
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U map_app_user -d map_app"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - map_app_network
+
+  # Liquibase для выполнения миграций
+  liquibase:
+    image: liquibase/liquibase:4.24
+    container_name: map_app_liquibase
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./database:/liquibase/changelog
+    command: >
+      --url="jdbc:postgresql://postgres:5432/map_app"
+      --username="map_app_user"
+      --password="map_app_password"
+      --changeLogFile="changelog/db.changelog-master.xml"
+      update
+    networks:
+      - map_app_network
+
+  # pgAdmin для администрирования БД (опционально)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: map_app_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin_password
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - map_app_network
+    profiles:
+      - tools
+
+volumes:
+  postgres_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+networks:
+  map_app_network:
+    driver: bridge

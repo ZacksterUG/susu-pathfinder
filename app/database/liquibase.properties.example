@@ -1,0 +1,16 @@
+# Liquibase configuration file
+# Copy to liquibase.properties and update values
+
+# Database connection
+url=jdbc:postgresql://localhost:5432/your_database
+username=your_user
+password=your_password
+
+# Changelog
+changeLogFile=database/db.changelog-master.xml
+
+# Default schema
+defaultSchemaName=map_app
+
+# Logging
+logLevel=info

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="004" author="developer">
+        <comment>Создание таблицы FLOOR (Этажи)</comment>
+        <createTable schemaName="map_app" tableName="floor">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="building_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="floor_number" type="varchar(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="corridor_points" type="jsonb"/>
+        </createTable>
+
+        <addDefaultValue schemaName="map_app" tableName="floor" columnName="id" defaultValueComputed="uuid_generate_v4()"/>
+
+        <addUniqueConstraint schemaName="map_app" tableName="floor" columnNames="building_id, floor_number" constraintName="uq_floor_building_floor"/>
+
+        <sql>
+            ALTER TABLE map_app.floor
+            ADD CONSTRAINT fk_floor_building
+            FOREIGN KEY (building_id)
+            REFERENCES map_app.building(id);
+        </sql>
+
+        <rollback>
+            <dropTable schemaName="map_app" tableName="floor"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

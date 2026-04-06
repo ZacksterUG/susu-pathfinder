@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <!-- Расширения PostgreSQL -->
+    <include file="001-create-extensions.xml" relativeToChangelogFile="true"/>
+
+    <!-- Создание схемы -->
+    <include file="002-create-schema.xml" relativeToChangelogFile="true"/>
+
+    <!-- Таблицы -->
+    <include file="003-create-building-table.xml" relativeToChangelogFile="true"/>
+    <include file="004-create-floor-table.xml" relativeToChangelogFile="true"/>
+    <include file="005-create-room-table.xml" relativeToChangelogFile="true"/>
+    <include file="006-create-technical-table.xml" relativeToChangelogFile="true"/>
+    <include file="007-create-entrance-table.xml" relativeToChangelogFile="true"/>
+    <include file="008-create-grid-table.xml" relativeToChangelogFile="true"/>
+    <include file="009-create-path-cache-table.xml" relativeToChangelogFile="true"/>
+
+    <!-- Индексы -->
+    <include file="010-create-indexes.xml" relativeToChangelogFile="true"/>
+
+    <!-- Данные: Корпуса -->
+    <include file="db.changelog-buildings.xml" relativeToChangelogFile="true"/>
+
+    <!-- Данные: Этажи -->
+    <include file="db.changelog-floors.xml" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>

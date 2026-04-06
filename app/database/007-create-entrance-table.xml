@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="007" author="developer">
+        <comment>Создание таблицы ENTRANCE (Входы)</comment>
+        <createTable schemaName="map_app" tableName="entrance">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="object_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="object_type" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="building_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="floor_number" type="varchar(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="x" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="y" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="room_number" type="varchar(50)"/>
+        </createTable>
+
+        <addDefaultValue schemaName="map_app" tableName="entrance" columnName="id" defaultValueComputed="uuid_generate_v4()"/>
+
+        <addUniqueConstraint schemaName="map_app" tableName="entrance" columnNames="object_id, object_type, floor_number" constraintName="uq_entrance_object"/>
+
+        <sql>
+            ALTER TABLE map_app.entrance
+            ADD CONSTRAINT fk_entrance_building
+            FOREIGN KEY (building_id)
+            REFERENCES map_app.building(id);
+        </sql>
+
+        <rollback>
+            <dropTable schemaName="map_app" tableName="entrance"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

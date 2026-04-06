@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="009" author="developer">
+        <comment>Создание таблицы PATH_CACHE (Кэш путей)</comment>
+        <createTable schemaName="map_app" tableName="path_cache">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="building_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="room_start_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="room_end_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="path_nodes" type="jsonb"/>
+            <column name="path_length" type="double precision"/>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addDefaultValue schemaName="map_app" tableName="path_cache" columnName="id" defaultValueComputed="uuid_generate_v4()"/>
+
+        <addUniqueConstraint schemaName="map_app" tableName="path_cache" columnNames="room_start_id, room_end_id" constraintName="uq_path_cache_rooms"/>
+
+        <sql>
+            ALTER TABLE map_app.path_cache
+            ADD CONSTRAINT fk_path_cache_building
+            FOREIGN KEY (building_id)
+            REFERENCES map_app.building(id);
+
+            ALTER TABLE map_app.path_cache
+            ADD CONSTRAINT fk_path_cache_room_start
+            FOREIGN KEY (room_start_id)
+            REFERENCES map_app.room(id);
+
+            ALTER TABLE map_app.path_cache
+            ADD CONSTRAINT fk_path_cache_room_end
+            FOREIGN KEY (room_end_id)
+            REFERENCES map_app.room(id);
+        </sql>
+
+        <rollback>
+            <dropTable schemaName="map_app" tableName="path_cache"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
