@@ -419,6 +419,156 @@
       "y": 552,
       "room_number": "438",
       "type": "room"
+    },
+    "db7e8764-779f-c2e9-b470-0c082cc50fef": {
+      "x": 244,
+      "y": 1703,
+      "room_number": "452",
+      "type": "room"
+    },
+    "65f1ee11-c8b6-37ca-0343-0e7d634283ce": {
+      "x": 287,
+      "y": 1700,
+      "room_number": "437",
+      "type": "room"
+    },
+    "6c894dc6-9ad5-6941-965c-b40f52a2c2b1": {
+      "x": 244,
+      "y": 1562,
+      "room_number": "450",
+      "type": "room"
+    },
+    "23cff4a9-85d7-d9e6-11e0-0f427f701114": {
+      "x": 287,
+      "y": 1469,
+      "room_number": "435а",
+      "type": "room"
+    },
+    "66dac6a1-39ee-b879-8470-95a6accefba2": {
+      "x": 116,
+      "y": 1389,
+      "room_number": "448а",
+      "type": "room"
+    },
+    "dc2a9821-2fe6-45d8-8db7-f878a8312050": {
+      "x": 287,
+      "y": 1392,
+      "room_number": "Лестница 4",
+      "type": "stairs"
+    },
+    "db4f9750-bed4-f188-d1ac-d3df6082da5a": {
+      "x": 244,
+      "y": 1307,
+      "room_number": "448",
+      "type": "room"
+    },
+    "8f2b2252-432b-f0c4-a4e0-33297aaf0dae": {
+      "x": 287,
+      "y": 1262,
+      "room_number": "433",
+      "type": "room"
+    },
+    "3e806500-a733-8b9f-e993-42a4d867106c": {
+      "x": 244,
+      "y": 1084,
+      "room_number": "446",
+      "type": "room"
+    },
+    "95ba7778-c86b-4b52-3dc7-9f4d31ede3b3": {
+      "x": 287,
+      "y": 1087,
+      "room_number": "431",
+      "type": "room"
+    },
+    "478088fe-6905-5fc0-0760-3eb07f5f7374": {
+      "x": 244,
+      "y": 954,
+      "room_number": "444",
+      "type": "room"
+    },
+    "13def7ff-9f95-61fd-6233-8c02e9c6a93a": {
+      "x": 287,
+      "y": 951,
+      "room_number": "429",
+      "type": "room"
+    },
+    "96157ff5-d879-1f82-69c0-bbfea1379e3b": {
+      "x": 244,
+      "y": 805,
+      "room_number": "442",
+      "type": "room"
+    },
+    "0009e974-a3b3-ed8d-ff0d-6c0142755084": {
+      "x": 287,
+      "y": 813,
+      "room_number": "427",
+      "type": "room"
+    },
+    "df942895-4fa1-fbad-e50e-0a746ad991ea": {
+      "x": 244,
+      "y": 712,
+      "room_number": "440",
+      "type": "room"
+    },
+    "5c38a4a6-00d4-f564-1a44-ddffa85ea345": {
+      "x": 287,
+      "y": 744,
+      "room_number": "425",
+      "type": "room"
+    },
+    "10d723e1-3a74-0fcb-8529-9fd00078cfa0": {
+      "x": 287,
+      "y": 660,
+      "room_number": "423",
+      "type": "room"
+    },
+    "1b992f6c-288b-4027-938b-241e76524a35": {
+      "x": 305,
+      "y": 392,
+      "room_number": "Лифт 4",
+      "type": "elevator"
+    },
+    "4097cdd2-70d4-428d-9864-c82b4ee01e20": {
+      "x": 333,
+      "y": 392,
+      "room_number": "Лифт 4",
+      "type": "elevator"
+    },
+    "9faaf5dd-883b-47ed-a6f9-a0c888f22244": {
+      "x": 361,
+      "y": 392,
+      "room_number": "Лифт 4",
+      "type": "elevator"
+    },
+    "d4c37236-2a8d-3454-609e-6e07fa3509dc": {
+      "x": 219,
+      "y": 410,
+      "room_number": "436",
+      "type": "room"
+    },
+    "98d7465c-860a-2ca7-f689-f3f9aa9eb4b8": {
+      "x": 219,
+      "y": 314,
+      "room_number": "434",
+      "type": "room"
+    },
+    "12487b68-f355-4c90-abe2-2c9b2b05e495": {
+      "x": 254,
+      "y": 139,
+      "room_number": "Лестница 4",
+      "type": "stairs"
+    },
+    "6b75d3a3-0a17-65ae-4540-da1a8540e98c": {
+      "x": 334,
+      "y": 139,
+      "room_number": "400",
+      "type": "room"
+    },
+    "6b389f4d-d146-7949-b434-d0e3ea7f8e94": {
+      "x": 219,
+      "y": 181,
+      "room_number": "432",
+      "type": "room"
     }
   }
 }

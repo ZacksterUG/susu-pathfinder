@@ -3,6 +3,14 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import math
 import heapq
+import os
+import sys
+
+# Добавляем путь к модулю network
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from network.manager import NetworkManager
+from network.window import open_network_window
+from pathfinder.window import open_pathfinder_window
 
 # Загружаем данные
 with open('coordinates.json', 'r', encoding='utf-8') as f:
@@ -436,6 +444,9 @@ class MapApp:
         self.entrances = load_entrances()
         self.grid_data = load_grid()
 
+        # Менеджер сетей
+        self.network_manager = NetworkManager()
+
         self.preview_dot = None
         self.current_hover_obj = None
         self.hover_x = 0
@@ -454,11 +465,6 @@ class MapApp:
 
         # Для подключения входов
         self.entrance_connections = []  # Список подключённых входов
-
-        # Для поиска пути
-        self.path_start_room = None  # Выбранная аудитория отправления
-        self.path_end_room = None    # Выбранная аудитория назначения
-        self.current_path = None     # Текущий найденный путь (список индексов узлов)
 
         self.setup_ui()
         
@@ -499,6 +505,8 @@ class MapApp:
         ttk.Button(control_frame, text="👁️ Показать/скрыть", command=self.toggle_grid).pack(side=tk.LEFT, padx=5)
         ttk.Button(control_frame, text="💾 Сохранить сетку", command=self.save_grid_ui).pack(side=tk.LEFT, padx=5)
         ttk.Button(control_frame, text="🔗 Подключить входы", command=self.connect_entrances).pack(side=tk.LEFT, padx=5)
+        ttk.Button(control_frame, text="🔗 Сети лифтов/лестниц", command=self.open_network_manager).pack(side=tk.LEFT, padx=5)
+        ttk.Button(control_frame, text="🛣️ Построить путь", command=self.open_pathfinder).pack(side=tk.LEFT, padx=5)
         
         # Разделитель
         ttk.Separator(control_frame, orient=tk.VERTICAL).pack(side=tk.LEFT, padx=20, fill=tk.Y)
@@ -511,24 +519,6 @@ class MapApp:
         self.status_label = ttk.Label(control_frame, text="", foreground="green", font=("Arial", 10))
         self.status_label.pack(side=tk.RIGHT, padx=10)
 
-        # Вторая строка - Поиск пути
-        path_frame = ttk.Frame(self.root, padding="10")
-        path_frame.pack(side=tk.TOP, fill=tk.X)
-        
-        ttk.Label(path_frame, text="🛣️ Поиск пути:").pack(side=tk.LEFT, padx=5)
-        ttk.Label(path_frame, text="От:").pack(side=tk.LEFT, padx=5)
-        self.path_start_var = tk.StringVar()
-        self.path_start_combo = ttk.Combobox(path_frame, textvariable=self.path_start_var, width=10)
-        self.path_start_combo.pack(side=tk.LEFT, padx=5)
-        
-        ttk.Label(path_frame, text="До:").pack(side=tk.LEFT, padx=5)
-        self.path_end_var = tk.StringVar()
-        self.path_end_combo = ttk.Combobox(path_frame, textvariable=self.path_end_var, width=10)
-        self.path_end_combo.pack(side=tk.LEFT, padx=5)
-        
-        ttk.Button(path_frame, text="🔍 Построить путь", command=self.build_path).pack(side=tk.LEFT, padx=5)
-        ttk.Button(path_frame, text="❌ Сбросить путь", command=self.clear_path).pack(side=tk.LEFT, padx=5)
-        
         # Холст
         self.canvas_frame = ttk.Frame(self.root)
         self.canvas_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
@@ -573,9 +563,6 @@ class MapApp:
         ttk.Label(self.legend_frame, text=" Аудитория  🔴 Лестница  🟡 Лифт   Тех.помещение   Вход  ⚪ Предпросмотр  🔵 Узел  🟢 Подключение",
                  font=("Arial", 10)).pack()
         
-        ttk.Label(self.legend_frame, text=" 🟠 Путь",
-                 font=("Arial", 10), foreground="#FF4500").pack()
-        
     def on_building_select(self, event):
         selected = self.building_combo.get()
         for bid in building_ids:
@@ -607,11 +594,6 @@ class MapApp:
         self.show_grid = False
         self.entrance_connections = []
         self.corridor_points = []
-        
-        # Сброс поиска пути
-        self.path_start_room = None
-        self.path_end_room = None
-        self.current_path = None
 
         # Загружаем сохранённую сетку для этого этажа
         grid_key = f"{self.current_building}_{self.current_floor}"
@@ -638,20 +620,17 @@ class MapApp:
         """Заполнить комбобоксы выбора аудиторий"""
         if not self.current_building or not self.current_floor:
             return
-        
+
         building_rooms = rooms.get(self.current_building, [])
         floor_rooms = [r for r in building_rooms if str(r.get('Floor', '')) == str(self.current_floor)]
-        
+
         # Сортируем по номеру
         floor_rooms_sorted = sorted(floor_rooms, key=lambda r: str(r.get('Number', '')))
-        
+
         room_numbers = [r.get('Number', str(r.get('Id', ''))) for r in floor_rooms_sorted]
-        
-        self.path_start_combo['values'] = room_numbers
-        self.path_end_combo['values'] = room_numbers
-        if room_numbers:
-            self.path_start_combo.current(0)
-            self.path_end_combo.current(len(room_numbers) - 1 if len(room_numbers) > 1 else 0)
+
+        # Комбобоксы для pathfinder теперь в отдельном окне
+        # room_numbers используются только для справки
         
     def on_cell_size_change(self, value):
         self.cell_size = int(float(value))
@@ -698,6 +677,40 @@ class MapApp:
         else:
             messagebox.showinfo("Инфо", "Сначала постройте сетку")
         
+    def open_network_manager(self):
+        """Открыть окно управления сетями лифтов/лестниц"""
+        if not self.current_building:
+            messagebox.showwarning("Ошибка", "Сначала выберите корпус")
+            return
+
+        building_name = building_names.get(self.current_building, self.current_building)
+        open_network_window(
+            self.root,
+            infrastructure,  # floors_data
+            self.current_building,
+            building_name,
+            self.network_manager
+        )
+
+    def open_pathfinder(self):
+        """Открыть окно построения пути"""
+        if not self.current_building:
+            messagebox.showwarning("Ошибка", "Сначала выберите корпус")
+            return
+
+        building_name = building_names.get(self.current_building, self.current_building)
+        open_pathfinder_window(
+            self.root,
+            rooms,  # rooms_data
+            coordinates,  # coordinates_data
+            infrastructure,  # floors_data
+            self.grid_data,  # grid_data
+            self.entrances,  # entrances_data
+            self.current_building,
+            building_name,
+            self.network_manager
+        )
+
     def connect_entrances(self):
         """Подключить все входы к сетке"""
         if not self.grid_nodes:
@@ -770,71 +783,6 @@ class MapApp:
             if obj_data.get('number') == room_number:
                 return (obj_id, obj_data['polygon'])
         return None
-
-    def build_path(self):
-        """Построить путь от одной аудитории к другой"""
-        if not self.grid_nodes:
-            messagebox.showwarning("Ошибка", "Сначала постройте сетку")
-            return
-        
-        start_room = self.path_start_var.get()
-        end_room = self.path_end_var.get()
-        
-        if not start_room or not end_room:
-            messagebox.showwarning("Ошибка", "Выберите аудитории отправления и назначения")
-            return
-        
-        if start_room == end_room:
-            messagebox.showinfo("Инфо", "Аудитории совпадают")
-            return
-        
-        # Находим входы для аудиторий
-        start_entrance = self.find_entrance_for_room(start_room)
-        end_entrance = self.find_entrance_for_room(end_room)
-        
-        if not start_entrance:
-            messagebox.showwarning("Ошибка", f"Нет точки входа для аудитории {start_room}")
-            return
-        
-        if not end_entrance:
-            messagebox.showwarning("Ошибка", f"Нет точки входа для аудитории {end_room}")
-            return
-        
-        # Находим ближайшие узлы сетки к точкам входов
-        start_node_idx, _ = find_nearest_node_to_point(start_entrance[0], start_entrance[1], self.grid_nodes)
-        end_node_idx, _ = find_nearest_node_to_point(end_entrance[0], end_entrance[1], self.grid_nodes)
-        
-        if start_node_idx is None or end_node_idx is None:
-            messagebox.showwarning("Ошибка", "Не удалось найти узлы сетки для входов")
-            return
-        
-        # Запускаем A*
-        path = astar_pathfinding(start_node_idx, end_node_idx, self.grid_nodes, self.grid_edges)
-        
-        if path:
-            self.current_path = path
-            self.path_start_room = start_room
-            self.path_end_room = end_room
-            
-            # Считаем длину пути
-            path_length = 0
-            for i in range(len(path) - 1):
-                n1 = self.grid_nodes[path[i]]
-                n2 = self.grid_nodes[path[i + 1]]
-                path_length += math.sqrt((n1['x'] - n2['x'])**2 + (n1['y'] - n2['y'])**2)
-            
-            self.draw_map()
-            self.status_label.config(text=f"🛣️ Путь: {start_room} → {end_room}, длина: {path_length:.1f}")
-        else:
-            messagebox.showwarning("Ошибка", "Путь не найден")
-
-    def clear_path(self):
-        """Сбросить путь"""
-        self.current_path = None
-        self.path_start_room = None
-        self.path_end_room = None
-        self.draw_map()
-        self.status_label.config(text="Путь сброшен")
 
     def save_grid_ui(self):
         """Сохранить сетку"""
@@ -1043,19 +991,6 @@ class MapApp:
                     self.canvas.create_oval(nx-3, ny-3, nx+3, ny+3,
                                            fill='#00BFFF', outline='#006400', width=1,
                                            tags='grid_node')
-
-        # Визуализация пути
-        if self.current_path and self.grid_nodes:
-            # Рисуем линию пути толщиной с узел
-            path_coords = []
-            for node_idx in self.current_path:
-                node = self.grid_nodes[node_idx]
-                sx, sy = scale_point(node['x'], node['y'])
-                path_coords.extend([sx, sy])
-            
-            if len(path_coords) >= 4:
-                self.canvas.create_line(path_coords, fill='#FF4500', width=12,
-                                       tags='path_line', capstyle=tk.ROUND, joinstyle=tk.ROUND)
 
         # Точки входа
         self.draw_entrances(scale_point)
