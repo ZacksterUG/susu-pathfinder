@@ -77,22 +77,20 @@ database/
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<databaseChangeLog
-        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
-        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
-
-    <changeSet id="<имя>" author="<ваше-имя>">
+<databaseChangeLog ...>
+    <changeSet id="<имя>" author="<ваше-имя>" runOnChange="true">
         <comment>Перенос данных из <источник> в таблицу <таблица></comment>
+        <sql>DELETE FROM map_app.<таблица>;</sql>
         <sqlFile path="<имя>.sql" relativeToChangelogFile="true" splitStatements="true"/>
         <rollback>
-            <delete tableName="<таблица>" schemaName="map_app"/>
+            <sql>DELETE FROM map_app.<таблица>;</sql>
         </rollback>
     </changeSet>
-
 </databaseChangeLog>
 ```
+
+> **`runOnChange="true"`** — Liquibase выполнит changeset заново при каждом изменении SQL-файла.
+> Перед вставкой данные в таблице полностью удаляются, поэтому SQL содержит только `INSERT`.
 
 4. Добавьте `<include>` в `db.changelog-master.xml`:
 ```xml

@@ -5,12 +5,12 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
 
-    <changeSet id="buildings" author="developer" runOnChange="true">
-        <comment>Перенос данных из buildings.json в таблицу building</comment>
-        <sql>DELETE FROM map_app.building;</sql>
-        <sqlFile path="buildings.sql" relativeToChangelogFile="true" splitStatements="true"/>
+    <changeSet id="grid" author="developer" runOnChange="true">
+        <comment>Перенос данных из grid.json в таблицу grid</comment>
+        <sql>DELETE FROM map_app.grid;</sql>
+        <sqlFile path="grid.sql" relativeToChangelogFile="true" splitStatements="true"/>
         <rollback>
-            <sql>DELETE FROM map_app.building;</sql>
+            <sql>DELETE FROM map_app.grid;</sql>
         </rollback>
     </changeSet>
 

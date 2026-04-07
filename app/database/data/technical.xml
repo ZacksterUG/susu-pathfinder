@@ -5,11 +5,12 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
 
-    <changeSet id="technical" author="developer">
+    <changeSet id="technical" author="developer" runOnChange="true">
         <comment>Перенос данных о технических помещениях в таблицу technical</comment>
+        <sql>DELETE FROM map_app.technical;</sql>
         <sqlFile path="technical.sql" relativeToChangelogFile="true" splitStatements="true"/>
         <rollback>
-            <delete tableName="technical" schemaName="map_app"/>
+            <sql>DELETE FROM map_app.technical;</sql>
         </rollback>
     </changeSet>
 
