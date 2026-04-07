@@ -177,7 +177,7 @@ def main():
 
     floors_json = root_dir / 'entrance_app' / 'floors.json'
     network_json = root_dir / 'entrance_app' / 'network_data.json'
-    output_sql = root_dir / 'app' / 'database' / 'sql' / 'V003__insert_technical.sql'
+    output_sql = root_dir / 'app' / 'database' / 'data' / 'technical.sql'
 
     # Загрузка данных
     print(f"📖 Чтение {floors_json}...")

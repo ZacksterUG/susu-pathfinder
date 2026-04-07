@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
 
-    <changeSet id="004" author="developer">
+    <changeSet id="floor" author="developer">
         <comment>Создание таблицы FLOOR (Этажи)</comment>
         <createTable schemaName="map_app" tableName="floor">
             <column name="id" type="uuid">

@@ -5,11 +5,11 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
 
-    <changeSet id="V001" author="developer">
-        <comment>Перенос данных из buildings.json в таблицу building</comment>
-        <sqlFile path="sql/V001__insert_buildings.sql" relativeToChangelogFile="true" splitStatements="true"/>
+    <changeSet id="002" author="developer">
+        <comment>Создание схемы map_app</comment>
+        <sql>CREATE SCHEMA IF NOT EXISTS map_app;</sql>
         <rollback>
-            <delete tableName="building" schemaName="map_app"/>
+            <sql>DROP SCHEMA IF EXISTS map_app CASCADE;</sql>
         </rollback>
     </changeSet>
 

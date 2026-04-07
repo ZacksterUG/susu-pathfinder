@@ -44,7 +44,7 @@ def main():
     # Пути относительно корня проекта
     root_dir = Path(__file__).parent
     buildings_json = root_dir / 'entrance_app' / 'buildings.json'
-    output_sql = root_dir / 'app' / 'database' / 'sql' / 'V001__insert_buildings.sql'
+    output_sql = root_dir / 'app' / 'database' / 'data' / 'buildings.sql'
     
     # Загрузка данных
     print(f"📖 Чтение {buildings_json}...")

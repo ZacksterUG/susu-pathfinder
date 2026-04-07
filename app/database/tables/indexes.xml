@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
 
-    <changeSet id="010" author="developer">
+    <changeSet id="indexes" author="developer">
         <comment>Создание индексов для оптимизации запросов</comment>
 
         <!-- Индексы для таблицы ROOM -->
@@ -38,9 +38,19 @@
 
         <!-- Триггер для автоматического обновления updated_at в таблице grid -->
         <sql splitStatements="false">
-            -- Триггер создаётся в отдельном SQL файле
+            CREATE OR REPLACE FUNCTION map_app.update_updated_at_column()
+            RETURNS TRIGGER AS $$
+            BEGIN
+                NEW.updated_at = CURRENT_TIMESTAMP;
+                RETURN NEW;
+            END;
+            $$ LANGUAGE plpgsql;
+
+            CREATE TRIGGER update_grid_updated_at
+                BEFORE UPDATE ON map_app.grid
+                FOR EACH ROW
+                EXECUTE FUNCTION map_app.update_updated_at_column();
         </sql>
-        <sqlFile path="sql/010-create-trigger.sql" relativeToChangelogFile="true" splitStatements="false"/>
 
         <rollback>
             <dropIndex schemaName="map_app" tableName="room" indexName="idx_room_building_floor"/>

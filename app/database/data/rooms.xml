@@ -5,9 +5,9 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
 
-    <changeSet id="V004" author="developer">
-        <comment>Перенос данных из rooms.json в map_app.room</comment>
-        <sqlFile path="sql/V004__insert_rooms.sql" relativeToChangelogFile="true" splitStatements="true"/>
+    <changeSet id="rooms" author="developer">
+        <comment>Перенос данных из rooms.json в таблицу room</comment>
+        <sqlFile path="rooms.sql" relativeToChangelogFile="true" splitStatements="true"/>
         <rollback>
             <delete tableName="room" schemaName="map_app"/>
         </rollback>

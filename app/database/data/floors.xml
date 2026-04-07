@@ -3,11 +3,11 @@
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
-                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
 
-    <changeSet id="V002" author="developer">
-        <comment>Перенос данных из coordinates.json в таблицу floor</comment>
-        <sqlFile path="sql/V002__insert_floors.sql" relativeToChangelogFile="true" splitStatements="true"/>
+    <changeSet id="floors" author="developer">
+        <comment>Перенос данных из floors.json в таблицу floor</comment>
+        <sqlFile path="floors.sql" relativeToChangelogFile="true" splitStatements="true"/>
         <rollback>
             <delete tableName="floor" schemaName="map_app"/>
         </rollback>

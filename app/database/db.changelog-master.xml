@@ -5,34 +5,32 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
 
-    <!-- Расширения PostgreSQL -->
-    <include file="001-create-extensions.xml" relativeToChangelogFile="true"/>
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- СХЕМА                                                  -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <include file="schema/001-create-extensions.xml" relativeToChangelogFile="true"/>
+    <include file="schema/002-create-schema.xml" relativeToChangelogFile="true"/>
 
-    <!-- Создание схемы -->
-    <include file="002-create-schema.xml" relativeToChangelogFile="true"/>
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- ТАБЛИЦЫ                                                -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <include file="tables/building.xml" relativeToChangelogFile="true"/>
+    <include file="tables/floor.xml" relativeToChangelogFile="true"/>
+    <include file="tables/room.xml" relativeToChangelogFile="true"/>
+    <include file="tables/technical.xml" relativeToChangelogFile="true"/>
+    <include file="tables/entrance.xml" relativeToChangelogFile="true"/>
+    <include file="tables/grid.xml" relativeToChangelogFile="true"/>
+    <include file="tables/path-cache.xml" relativeToChangelogFile="true"/>
 
-    <!-- Таблицы -->
-    <include file="003-create-building-table.xml" relativeToChangelogFile="true"/>
-    <include file="004-create-floor-table.xml" relativeToChangelogFile="true"/>
-    <include file="005-create-room-table.xml" relativeToChangelogFile="true"/>
-    <include file="006-create-technical-table.xml" relativeToChangelogFile="true"/>
-    <include file="007-create-entrance-table.xml" relativeToChangelogFile="true"/>
-    <include file="008-create-grid-table.xml" relativeToChangelogFile="true"/>
-    <include file="009-create-path-cache-table.xml" relativeToChangelogFile="true"/>
+    <!-- Индексы и триггеры -->
+    <include file="tables/indexes.xml" relativeToChangelogFile="true"/>
 
-    <!-- Индексы -->
-    <include file="010-create-indexes.xml" relativeToChangelogFile="true"/>
-
-    <!-- Данные: Корпуса -->
-    <include file="db.changelog-buildings.xml" relativeToChangelogFile="true"/>
-
-    <!-- Данные: Этажи -->
-    <include file="db.changelog-floors.xml" relativeToChangelogFile="true"/>
-
-    <!-- Данные: Технические помещения -->
-    <include file="db.changelog-technical.xml" relativeToChangelogFile="true"/>
-
-    <!-- Данные: Аудитории -->
-    <include file="db.changelog-rooms.xml" relativeToChangelogFile="true"/>
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- ДАННЫЕ                                                 -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <include file="data/buildings.xml" relativeToChangelogFile="true"/>
+    <include file="data/floors.xml" relativeToChangelogFile="true"/>
+    <include file="data/technical.xml" relativeToChangelogFile="true"/>
+    <include file="data/rooms.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

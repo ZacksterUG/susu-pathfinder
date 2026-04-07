@@ -1,127 +1,129 @@
-# Liquibase миграции для базы данных map_app
+# Database Migrations
 
-## Структура файлов
+Миграции базы данных управляются через **Liquibase 4.24**.
+
+## Структура директорий
 
 ```
 database/
-├── db.changelog-master.xml          # Главный файл changelog
-├── db.changelog-buildings.xml       # Changelog для данных корпусов
-├── db.changelog-floors.xml          # Changelog для данных этажей
-├── 001-create-extensions.xml        # Расширения PostgreSQL (uuid-ossp)
-├── 002-create-schema.xml            # Создание схемы map_app
-├── 003-create-building-table.xml
-├── 004-create-floor-table.xml
-├── 005-create-room-table.xml
-├── 006-create-technical-table.xml
-├── 007-create-entrance-table.xml
-├── 008-create-grid-table.xml
-├── 009-create-path-cache-table.xml
-├── 010-create-indexes.xml           # Индексы и триггеры
-└── sql/
-    ├── 010-create-trigger.sql       # Триггер updated_at
-    ├── V001__insert_buildings.sql   # Данные: корпуса (из buildings.json)
-    └── V002__insert_floors.sql      # Данные: этажи (из coordinates.json)
+├── db.changelog-master.xml          # Точка входа — все include отсюда
+│
+├── schema/                          # Создание схемы и расширений
+│   ├── 001-create-extensions.xml
+│   └── 002-create-schema.xml
+│
+├── tables/                          # DDL: таблицы и индексы
+│   ├── building.xml                 # Таблица building
+│   ├── floor.xml                    # Таблица floor
+│   ├── room.xml                     # Таблица room
+│   ├── technical.xml                # Таблица technical
+│   ├── entrance.xml                 # Таблица entrance
+│   ├── grid.xml                     # Таблица grid
+│   ├── path-cache.xml               # Таблица path_cache
+│   └── indexes.xml                  # Индексы + триггеры
+│
+├── triggers/                        # SQL-триггеры и функции
+│   └── update-grid-updated-at.sql
+│
+└── data/                            # DML: данные (SQL из JSON)
+    ├── buildings.xml                # Changelog для buildings
+    ├── buildings.sql                # INSERT-данные корпусов
+    ├── floors.xml
+    ├── floors.sql
+    ├── technical.xml
+    ├── technical.sql
+    ├── rooms.xml
+    └── rooms.sql
 ```
 
-## Схема базы данных
+## Создание нового changeset-а
 
-Все таблицы создаются в схеме `map_app`:
+### 1. Добавить новую таблицу
 
-| Таблица | Описание |
-|---------|----------|
-| building | Корпуса |
-| floor | Этажи (с полигоном коридора) |
-| room | Аудитории |
-| technical | Технические объекты (лестницы, лифты, туалеты и т.д.) |
-| entrance | Входы в помещения |
-| grid | Навигационная сетка (JSON) |
-| path_cache | Кэш путей между аудиториями |
+Создайте файл `tables/<имя>.xml`:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="<имя-таблицы>" author="<ваше-имя>">
+        <comment>Создание таблицы <ОПИСАНИЕ></comment>
+        <createTable schemaName="map_app" tableName="<имя_таблицы>">
+            <!-- columns -->
+        </createTable>
+
+        <rollback>
+            <dropTable schemaName="map_app" tableName="<имя_таблицы>"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
+```
+
+Добавьте `<include>` в `db.changelog-master.xml`:
+```xml
+<include file="tables/<имя>.xml" relativeToChangelogFile="true"/>
+```
+
+### 2. Добавить данные из JSON
+
+1. Создайте Python-генератор в корне проекта (по аналогии с `generate_rooms_migration.py`)
+2. Выходной путь: `app/database/data/<имя>.sql`
+3. Создайте `data/<имя>.xml`:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="<имя>" author="<ваше-имя>">
+        <comment>Перенос данных из <источник> в таблицу <таблица></comment>
+        <sqlFile path="<имя>.sql" relativeToChangelogFile="true" splitStatements="true"/>
+        <rollback>
+            <delete tableName="<таблица>" schemaName="map_app"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
+```
+
+4. Добавьте `<include>` в `db.changelog-master.xml`:
+```xml
+<include file="data/<имя>.xml" relativeToChangelogFile="true"/>
+```
+
+### 3. Добавить триггер/функцию
+
+1. Положите SQL в `triggers/<имя>.sql`
+2. Вызовите через `<sqlFile>` в соответствующем changeset-е
 
 ## Запуск миграций
 
-### Через Liquibase CLI
-
 ```bash
-liquibase \
-  --url="jdbc:postgresql://localhost:5432/your_database" \
-  --username=your_user \
-  --password=your_password \
-  --changeLogFile=database/db.changelog-master.xml \
-  update
-```
-
-### Через Docker
-
-```bash
-docker run --rm \
-  -v $(pwd)/database:/liquibase/changelog \
-  liquibase/liquibase \
-  --url="jdbc:postgresql://host.docker.internal:5432/your_database" \
-  --username=your_user \
-  --password=your_password \
-  --changeLogFile=changelog/db.changelog-master.xml \
-  update
-```
-
-### Через Maven
-
-```xml
-<plugin>
-    <groupId>org.liquibase</groupId>
-    <artifactId>liquibase-maven-plugin</artifactId>
-    <version>4.24.0</version>
-    <configuration>
-        <changeLogFile>database/db.changelog-master.xml</changeLogFile>
-        <url>jdbc:postgresql://localhost:5432/your_database</url>
-        <username>your_user</username>
-        <password>your_password</password>
-        <defaultSchemaName>map_app</defaultSchemaName>
-    </configuration>
-</plugin>
-```
-
-```bash
-mvn liquibase:update
+docker-compose -f app/docker-compose.yml run --rm liquibase update
 ```
 
 ## Откат миграций
 
 ```bash
-liquibase \
-  --url="jdbc:postgresql://localhost:5432/your_database" \
-  --username=your_user \
-  --password=your_password \
-  --changeLogFile=database/db.changelog-master.xml \
-  rollbackCount 1
+# Откат всех изменений
+docker-compose -f app/docker-compose.yml run --rm liquibase rollbackAll
+
+# Откат до конкретного тега
+docker-compose -f app/docker-compose.yml run --rm liquibase rollback --tag=<tag>
 ```
 
-## Проверка статуса
+## Подключение к БД
 
-```bash
-liquibase \
-  --url="jdbc:postgresql://localhost:5432/your_database" \
-  --username=your_user \
-  --password=your_password \
-  --changeLogFile=database/db.changelog-master.xml \
-  status
-```
-
-## Типы данных PostgreSQL
-
-| Тип в схеме | Тип PostgreSQL |
-|-------------|----------------|
-| uuid | UUID |
-| string | VARCHAR(n) |
-| int | INTEGER |
-| float | DOUBLE PRECISION |
-| bool | BOOLEAN |
-| json | JSONB |
-| timestamp | TIMESTAMP WITH TIME ZONE |
-| uuid[] | UUID[] (массив) |
-
-## Особенности
-
-1. **uuid-ossp** — расширение для генерации UUID
-2. **JSONB** — бинарный JSON для эффективного хранения и поиска
-3. **GIN-индекс** — для быстрого поиска по массиву `linked`
-4. **Триггер** — автоматическое обновление `updated_at` в таблице `grid`
+- **Хост:** localhost
+- **Порт:** 5434
+- **БД:** map_app
+- **Пользователь:** postgres
+- **Пароль:** postgres

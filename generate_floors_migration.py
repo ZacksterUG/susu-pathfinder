@@ -84,7 +84,7 @@ def main():
     # Пути относительно корня проекта
     root_dir = Path(__file__).parent
     coordinates_json = root_dir / 'entrance_app' / 'coordinates.json'
-    output_sql = root_dir / 'app' / 'database' / 'sql' / 'V002__insert_floors.sql'
+    output_sql = root_dir / 'app' / 'database' / 'data' / 'floors.sql'
     
     # Загрузка данных
     print(f"📖 Чтение {coordinates_json}...")

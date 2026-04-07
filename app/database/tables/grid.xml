@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
 
-    <changeSet id="008" author="developer">
+    <changeSet id="grid" author="developer">
         <comment>Создание таблицы GRID (Сетка навигации)</comment>
         <createTable schemaName="map_app" tableName="grid">
             <column name="id" type="uuid">

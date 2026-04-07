@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
 
-    <changeSet id="009" author="developer">
+    <changeSet id="path-cache" author="developer">
         <comment>Создание таблицы PATH_CACHE (Кэш путей)</comment>
         <createTable schemaName="map_app" tableName="path_cache">
             <column name="id" type="uuid">

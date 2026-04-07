@@ -103,7 +103,7 @@ def main():
     root_dir = Path(__file__).parent
 
     rooms_json = root_dir / 'entrance_app' / 'rooms.json'
-    output_sql = root_dir / 'app' / 'database' / 'sql' / 'V004__insert_rooms.sql'
+    output_sql = root_dir / 'app' / 'database' / 'data' / 'rooms.sql'
 
     # Загрузка данных
     print(f"📖 Чтение {rooms_json}...")
