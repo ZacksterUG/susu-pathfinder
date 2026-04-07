@@ -29,4 +29,10 @@
     <!-- Данные: Этажи -->
     <include file="db.changelog-floors.xml" relativeToChangelogFile="true"/>
 
+    <!-- Данные: Технические помещения -->
+    <include file="db.changelog-technical.xml" relativeToChangelogFile="true"/>
+
+    <!-- Данные: Аудитории -->
+    <include file="db.changelog-rooms.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>

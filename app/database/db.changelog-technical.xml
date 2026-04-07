@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="V003" author="developer">
+        <comment>Перенос данных о технических помещениях из floors.json в map_app.technical</comment>
+        <sqlFile path="sql/V003__insert_technical.sql" relativeToChangelogFile="true" splitStatements="true"/>
+        <rollback>
+            <delete tableName="technical" schemaName="map_app"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

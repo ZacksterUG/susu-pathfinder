@@ -27,8 +27,6 @@
 
         <addDefaultValue schemaName="map_app" tableName="room" columnName="id" defaultValueComputed="uuid_generate_v4()"/>
 
-        <addUniqueConstraint schemaName="map_app" tableName="room" columnNames="building_id, floor_number, number" constraintName="uq_room_building_floor_number"/>
-
         <sql>
             ALTER TABLE map_app.room
             ADD CONSTRAINT fk_room_building

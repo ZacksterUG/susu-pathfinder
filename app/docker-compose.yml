@@ -7,14 +7,14 @@ services:
     container_name: map_app_postgres
     environment:
       POSTGRES_DB: map_app
-      POSTGRES_USER: map_app_user
-      POSTGRES_PASSWORD: map_app_password
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     ports:
       - "5434:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U map_app_user -d map_app"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d map_app"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -32,14 +32,12 @@ services:
       - ./database:/liquibase/changelog
     command: >
       --url="jdbc:postgresql://postgres:5432/map_app"
-      --username="map_app_user"
-      --password="map_app_password"
+      --username="postgres"
+      --password="postgres"
       --changeLogFile="changelog/db.changelog-master.xml"
       update
     networks:
       - map_app_network
-
-  # pgAdmin для администрирования БД (опционально)
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: map_app_pgadmin
@@ -55,8 +53,6 @@ services:
       - postgres
     networks:
       - map_app_network
-    profiles:
-      - tools
 
 volumes:
   postgres_data:
