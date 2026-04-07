@@ -7,10 +7,26 @@
 
     <changeSet id="buildings" author="developer" runOnChange="true">
         <comment>Перенос данных из buildings.json в таблицу building</comment>
-        <sql>DELETE FROM map_app.building;</sql>
+        <sql>
+            DELETE FROM map_app.path_cache;
+            DELETE FROM map_app.entrance;
+            DELETE FROM map_app.technical;
+            DELETE FROM map_app.room;
+            DELETE FROM map_app.grid;
+            DELETE FROM map_app.floor;
+            DELETE FROM map_app.building;
+        </sql>
         <sqlFile path="buildings.sql" relativeToChangelogFile="true" splitStatements="true"/>
         <rollback>
-            <sql>DELETE FROM map_app.building;</sql>
+            <sql>
+                DELETE FROM map_app.path_cache;
+                DELETE FROM map_app.entrance;
+                DELETE FROM map_app.technical;
+                DELETE FROM map_app.room;
+                DELETE FROM map_app.grid;
+                DELETE FROM map_app.floor;
+                DELETE FROM map_app.building;
+            </sql>
         </rollback>
     </changeSet>
 

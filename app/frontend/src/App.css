@@ -1,0 +1,79 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #f0f2f5;
+}
+
+.app__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  font-size: 18px;
+  color: #999;
+}
+
+/* ─── Header ─── */
+
+.app__header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 16px 24px;
+  background: #fff;
+  border-bottom: 1px solid #e0e0e0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  flex-wrap: wrap;
+}
+
+.app__title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #222;
+  white-space: nowrap;
+}
+
+.app__route-btn {
+  padding: 8px 16px;
+  background: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.app__route-btn:hover {
+  background: #2980b9;
+}
+
+.app__selectors {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+/* ─── Main ─── */
+
+.app__main {
+  display: flex;
+  flex: 1;
+  gap: 16px;
+  padding: 16px 24px;
+  overflow: hidden;
+}
+
+.app__map-container {
+  flex: 1;
+  min-width: 0;
+}
+
+.app__sidebar {
+  width: 220px;
+  flex-shrink: 0;
+}

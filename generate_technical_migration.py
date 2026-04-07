@@ -111,7 +111,7 @@ def generate_insert_sql(floors_data: dict, network_data: dict) -> str:
         "-- Сгенерировано автоматически",
         "-- Технические помещения: лестницы, лифты, туалеты, гардеробы, охрана, подсобные, пункты питания",
         "",
-        "INSERT INTO map_app.technical (building_id, floor_number, name, type, coordinates, has_entrance, linked) VALUES"
+        "INSERT INTO map_app.technical (id, building_id, floor_number, name, type, coordinates, has_entrance, linked) VALUES"
     ]
 
     values = []
@@ -153,7 +153,7 @@ def generate_insert_sql(floors_data: dict, network_data: dict) -> str:
                 name_escaped = name.replace("'", "''")
 
                 values.append(
-                    f"    ('{building_id}', '{floor_number}', '{name_escaped}', "
+                    f"    ('{obj_id}', '{building_id}', '{floor_number}', '{name_escaped}', "
                     f"'{tech_type}', '{coordinates}'::jsonb, {str(entrance).lower()}, {linked_sql})"
                 )
 

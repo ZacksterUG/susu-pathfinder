@@ -54,6 +54,24 @@ services:
     networks:
       - map_app_network
 
+  # FastAPI бэкенд
+  backend:
+    build: ./backend
+    container_name: map_app_backend
+    environment:
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: map_app
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: postgres
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - map_app_network
+
 volumes:
   postgres_data:
     driver: local

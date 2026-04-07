@@ -1,0 +1,138 @@
+.route-modal__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.route-modal {
+  background: #fff;
+  border-radius: 12px;
+  width: 95%;
+  max-width: 1400px;
+  max-height: 95vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.route-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.route-modal__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.route-modal__close {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #999;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.route-modal__close:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.route-modal__body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.route-modal__forms {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.route-modal__form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.route-modal__form-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
+}
+
+.route-modal__form select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  background: #fff;
+}
+
+.route-modal__form select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.route-modal__warning {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #856404;
+  margin-bottom: 12px;
+}
+
+.route-modal__build-btn {
+  width: 100%;
+  padding: 10px;
+  background: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.route-modal__build-btn:hover:not(:disabled) {
+  background: #2980b9;
+}
+
+.route-modal__build-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.route-modal__error {
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #721c24;
+  margin-top: 12px;
+}
+
+.route-modal__result {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}

@@ -1,0 +1,63 @@
+.map-view {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  overflow: visible;
+}
+
+.map-view--empty,
+.map-view--loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 400px;
+  color: #999;
+  font-size: 16px;
+}
+
+.map-view__controls {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.map-view__controls button {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.map-view__controls button:hover {
+  background: #f0f0f0;
+  border-color: #bbb;
+}
+
+.map-view__room polygon {
+  transition: fill-opacity 0.15s;
+  cursor: pointer;
+}
+
+.map-view__room:hover polygon {
+  fill-opacity: 0.85;
+}
+
+.map-view__entrance {
+  cursor: pointer;
+}

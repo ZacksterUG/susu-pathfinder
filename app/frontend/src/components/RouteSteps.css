@@ -1,0 +1,85 @@
+.route-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.route-steps__list {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.route-steps__item {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.15s;
+}
+
+.route-steps__item:hover {
+  border-color: #3498db;
+}
+
+.route-steps__item--active {
+  background: #3498db;
+  color: #fff;
+  border-color: #3498db;
+}
+
+.route-steps__num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.1);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.route-steps__item--active .route-stps__num {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.route-steps__nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.route-steps__nav-btn {
+  padding: 6px 16px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.15s;
+}
+
+.route-steps__nav-btn:hover:not(:disabled) {
+  background: #f0f0f0;
+}
+
+.route-steps__nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.route-steps__counter {
+  font-size: 13px;
+  color: #666;
+  min-width: 50px;
+  text-align: center;
+}
