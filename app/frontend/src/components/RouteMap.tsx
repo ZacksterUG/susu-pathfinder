@@ -101,7 +101,7 @@ export default function RouteMap({
         minScale={0.1}
         maxScale={20}
         smooth
-        wheel={{ step: 0.0005, smoothStep: 0.0001 }}
+        wheel={{ step: 0.0005 }}
         panning={{ activationKeys: [], velocityDisabled: true }}
         doubleClick={{ disabled: true }}
         limitToBounds={false}

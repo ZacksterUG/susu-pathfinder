@@ -127,7 +127,7 @@ export default function MapView({ buildingId, floor, onTypesChange }: Props) {
         minScale={0.1}
         maxScale={20}
         smooth
-        wheel={{ step: 0.0005, smoothStep: 0.0001 }}
+        wheel={{ step: 0.0005 }}
         panning={{ activationKeys: [], velocityDisabled: true }}
         doubleClick={{ disabled: true }}
         limitToBounds={false}
@@ -174,22 +174,23 @@ export default function MapView({ buildingId, floor, onTypesChange }: Props) {
                 {rooms.map((room) => {
                   if (!room.coordinates?.points.length) return null;
                   const color = getColorForType(room.room_type ?? "");
+                  const pts = room.coordinates.points;
                   return (
                     <g
                       key={room.id}
                       className="map-view__room"
-                      onClick={(e) =>
+                      onClick={() =>
                         handleObjClick(
-                          e,
+                          {} as React.MouseEvent,
                           room.room_type ?? room.name ?? room.number,
                           color,
-                          room.coordinates.points
+                          pts
                         )
                       }
                     >
                       <polygon
                         points={pointsToSvgPoints(
-                          room.coordinates.points.map((p) => ({
+                          pts.map((p) => ({
                             x: p.x - bbox.minX + pad,
                             y: p.y - bbox.minY + pad,
                           }))
@@ -199,7 +200,7 @@ export default function MapView({ buildingId, floor, onTypesChange }: Props) {
                         stroke={color}
                         strokeWidth={1.5}
                       />
-                      {svgWidth > 200 && (
+                      {svgWidth > 200 && room.coordinates && (
                         <text
                           x={
                             room.coordinates.points.reduce((s, p) => s + p.x, 0) /
@@ -229,6 +230,7 @@ export default function MapView({ buildingId, floor, onTypesChange }: Props) {
                 {technical.map((t) => {
                   if (!t.coordinates?.points.length) return null;
                   const color = getColorForType(t.type);
+                  const pts = t.coordinates.points;
                   return (
                     <g
                       key={t.id}
@@ -238,13 +240,13 @@ export default function MapView({ buildingId, floor, onTypesChange }: Props) {
                           {} as React.MouseEvent,
                           t.type,
                           color,
-                          t.coordinates.points
+                          pts
                         )
                       }
                     >
                       <polygon
                         points={pointsToSvgPoints(
-                          t.coordinates.points.map((p) => ({
+                          pts.map((p) => ({
                             x: p.x - bbox.minX + pad,
                             y: p.y - bbox.minY + pad,
                           }))

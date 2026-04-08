@@ -98,29 +98,12 @@ export default function RouteModal({ buildings, onClose }: Props) {
   // Build route steps from path response
   const steps = useMemo<RouteStep[]>(() => {
     if (!pathResult || !pathResult.found) return [];
-    const s: RouteStep[] = [];
-    const path = pathResult.path;
-
-    for (let i = 0; i < path.length; i++) {
-      const seg = path[i];
-      s.push({
-        label: `Этаж ${seg.floor_number}`,
-        type: "walk",
-        floor_number: seg.floor_number,
-        nodes: seg.nodes,
-      });
-      // Transition after this segment
-      if (i < (pathResult.floor_transitions?.length || 0)) {
-        const tr = pathResult.floor_transitions![i];
-        s.push({
-          label: `Переход ${tr[0]} → ${tr[1]}`,
-          type: "transition",
-          floor_number: tr[1],
-          nodes: [],
-        });
-      }
-    }
-    return s;
+    return pathResult.path.map((seg) => ({
+      label: `Этаж ${seg.floor_number}`,
+      type: "walk" as const,
+      floor_number: seg.floor_number,
+      nodes: seg.nodes,
+    }));
   }, [pathResult]);
 
   // Current floor to display on map

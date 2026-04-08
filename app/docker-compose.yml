@@ -64,11 +64,20 @@ services:
       DATABASE_NAME: map_app
       DATABASE_USER: postgres
       DATABASE_PASSWORD: postgres
-    ports:
-      - "8000:8000"
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - map_app_network
+
+  # Фронтенд (nginx)
+  frontend:
+    build: ./frontend
+    container_name: map_app_frontend
+    ports:
+      - "85:80"
+    depends_on:
+      - backend
     networks:
       - map_app_network
 
