@@ -95,28 +95,66 @@ export default function RouteModal({ buildings, onClose }: Props) {
       .then((r) => setBRooms(r.filter((x) => x.coordinates)));
   }, [bBuilding, bFloor]);
 
-  // Build route steps from path response
+  // Build route steps from path response (including inter-building)
   const steps = useMemo<RouteStep[]>(() => {
     if (!pathResult || !pathResult.found) return [];
+    // Inter-building route: concatenate path_part1 and path_part2 without transition step
+    if (pathResult.inter_building) {
+      const result: RouteStep[] = [];
+      // path_part1: from room A to exit of building A
+      if (pathResult.path_part1) {
+        pathResult.path_part1.forEach((seg) => {
+          result.push({
+            label: `Этаж ${seg.floor_number}`,
+            type: "walk" as const,
+            floor_number: seg.floor_number,
+            nodes: seg.nodes,
+            buildingId: aBuilding!.id,
+          });
+        });
+      }
+      // path_part2: from entrance of building B to room B
+      if (pathResult.path_part2) {
+        pathResult.path_part2.forEach((seg) => {
+          result.push({
+            label: `Этаж ${seg.floor_number}`,
+            type: "walk" as const,
+            floor_number: seg.floor_number,
+            nodes: seg.nodes,
+            buildingId: bBuilding!.id,
+          });
+        });
+      }
+      return result;
+    }
+    // Single building route
     return pathResult.path.map((seg) => ({
       label: `Этаж ${seg.floor_number}`,
       type: "walk" as const,
       floor_number: seg.floor_number,
       nodes: seg.nodes,
     }));
-  }, [pathResult]);
+  }, [pathResult, aBuilding, bBuilding]);
 
-  // Current floor to display on map
+  // Current floor to display on map (use buildingId from step for inter-building)
   const currentFloorData = useMemo(() => {
-    if (!steps.length || !aBuilding) return null;
+    if (!steps.length) return null;
     const step = steps[currentStep];
     if (!step) return null;
+    // For inter-building: use buildingId from step
+    let floorsToSearch = aFloors;
+    if (step.buildingId) {
+      if (step.buildingId === aBuilding?.id) {
+        floorsToSearch = aFloors;
+      } else if (step.buildingId === bBuilding?.id) {
+        floorsToSearch = bFloors;
+      }
+    }
     return (
-      aFloors.find((f) => f.floor_number === step.floor_number) ||
-      bFloors.find((f) => f.floor_number === step.floor_number) ||
+      floorsToSearch.find((f) => f.floor_number === step.floor_number) ||
       null
     );
-  }, [steps, currentStep, aBuilding, aFloors, bFloors]);
+  }, [steps, currentStep, aBuilding, bBuilding, aFloors, bFloors]);
 
   const currentRoutePath = useMemo(() => {
     if (!steps.length) return undefined;
@@ -274,14 +312,14 @@ export default function RouteModal({ buildings, onClose }: Props) {
           </div>
 
           {!sameBuilding && (
-            <p className="route-modal__warning">
-              ⚠ Комнаты в разных корпусах — путь не может быть построен
+            <p className="route-modal__info">
+              ⚠ Разные корпуса — маршрут будет построен через улицу
             </p>
           )}
 
           <button
             className="route-modal__build-btn"
-            disabled={!canBuild || !sameBuilding || buildingRoute}
+            disabled={!canBuild || buildingRoute}
             onClick={handleBuild}
           >
             {buildingRoute ? "Построение..." : "Построить"}
@@ -295,7 +333,7 @@ export default function RouteModal({ buildings, onClose }: Props) {
           {pathResult?.found && (
             <div className="route-modal__result">
               <RouteMap
-                buildingId={aBuilding!.id}
+                buildingId={steps[currentStep]?.buildingId || aBuilding!.id}
                 floor={currentFloorData}
                 routePath={currentRoutePath}
                 startRoom={aRoom}

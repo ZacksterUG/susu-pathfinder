@@ -73,6 +73,10 @@ export interface PathResponse {
   total_length: number;
   floor_transitions: [string, string][];
   error: string | null;
+  // Межкорпусный маршрут
+  inter_building?: boolean;
+  path_part1?: PathSegment[];
+  path_part2?: PathSegment[];
 }
 
 export interface RouteStep {
@@ -80,4 +84,5 @@ export interface RouteStep {
   type: "walk" | "transition";
   floor_number: string;
   nodes: { x: number; y: number }[];
+  buildingId?: string; // Для межкорпусных маршрутов
 }

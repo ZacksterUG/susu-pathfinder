@@ -35,15 +35,53 @@ ENTRANCES_FILE = 'entrances.json'
 GRID_FILE = 'grid.json'
 
 def load_entrances():
+    """Загрузить входы комнат/лестниц/лифтов из entrances.json (без _building_entrances)"""
     try:
         with open(ENTRANCES_FILE, 'r', encoding='utf-8') as f:
-            return json.load(f)
+            data = json.load(f)
+            # Удаляем служебные ключи
+            data.pop('_building_entrances', None)
+            return data
     except:
         return {}
 
 def save_entrances(data):
+    """Сохранить входы комнат/лестниц/лифтов в entrances.json"""
+    try:
+        with open(ENTRANCES_FILE, 'r', encoding='utf-8') as f:
+            all_data = json.load(f)
+    except:
+        all_data = {}
+
+    # Обновляем только переданные ключи (не трогаем остальные)
+    for key, value in data.items():
+        if not key.startswith('_'):
+            all_data[key] = value
+
     with open(ENTRANCES_FILE, 'w', encoding='utf-8') as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+        json.dump(all_data, f, ensure_ascii=False, indent=2)
+
+def load_building_entrances():
+    """Загрузить входы в корпус из entrances.json"""
+    try:
+        with open(ENTRANCES_FILE, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            return data.get('_building_entrances', {})
+    except:
+        return {}
+
+def save_building_entrances(data):
+    """Сохранить входы в корпус в entrances.json"""
+    try:
+        with open(ENTRANCES_FILE, 'r', encoding='utf-8') as f:
+            all_data = json.load(f)
+    except:
+        all_data = {}
+
+    all_data['_building_entrances'] = data
+
+    with open(ENTRANCES_FILE, 'w', encoding='utf-8') as f:
+        json.dump(all_data, f, ensure_ascii=False, indent=2)
 
 def load_grid():
     try:
@@ -443,6 +481,7 @@ class MapApp:
         self.offset_y = 0
         self.entrances = load_entrances()
         self.grid_data = load_grid()
+        self.building_entrances = load_building_entrances()
 
         # Менеджер сетей
         self.network_manager = NetworkManager()
@@ -465,6 +504,11 @@ class MapApp:
 
         # Для подключения входов
         self.entrance_connections = []  # Список подключённых входов
+
+        # Режим разметки входов в корпус
+        self.building_entrance_mode = False
+        self.building_entrance_preview = None
+        self.building_entrances = {}  # {"buildingId_floor": [{"x": int, "y": int, "name": str}, ...]}
 
         self.setup_ui()
         
@@ -511,7 +555,15 @@ class MapApp:
         # Разделитель
         ttk.Separator(control_frame, orient=tk.VERTICAL).pack(side=tk.LEFT, padx=20, fill=tk.Y)
         
-        # Кнопки входов
+        ttk.Separator(control_frame, orient=tk.VERTICAL).pack(side=tk.LEFT, padx=10, fill=tk.Y)
+
+        # Входы в корпус
+        self.building_entrance_mode = tk.BooleanVar(value=False)
+        self.building_entrance_btn = ttk.Button(control_frame, text="🏢 Вход в корпус", command=self.toggle_building_entrance_mode)
+        self.building_entrance_btn.pack(side=tk.LEFT, padx=5)
+        ttk.Button(control_frame, text="🗑️ Очистить входы корпуса", command=self.clear_building_entrances).pack(side=tk.LEFT, padx=5)
+
+        # Кнопки входов комнат
         ttk.Button(control_frame, text="🟢 Сохранить входы", command=self.save_entrances_ui).pack(side=tk.LEFT, padx=5)
         ttk.Button(control_frame, text="🗑️ Очистить входы", command=self.clear_entrances).pack(side=tk.LEFT, padx=5)
 
@@ -560,7 +612,7 @@ class MapApp:
         self.legend_frame = ttk.Frame(self.root, padding="5")
         self.legend_frame.pack(side=tk.BOTTOM)
 
-        ttk.Label(self.legend_frame, text=" Аудитория  🔴 Лестница  🟡 Лифт   Тех.помещение   Вход  ⚪ Предпросмотр  🔵 Узел  🟢 Подключение",
+        ttk.Label(self.legend_frame, text=" Аудитория  🔴 Лестница  🟡 Лифт   Тех.помещение   Вход  🟠 Вход в корпус  ⚪ Предпросмотр  🔵 Узел  🟢 Подключение",
                  font=("Arial", 10)).pack()
         
     def on_building_select(self, event):
@@ -595,6 +647,10 @@ class MapApp:
         self.entrance_connections = []
         self.corridor_points = []
 
+        # Загружаем контур коридора
+        corridor_data = coordinates.get(self.current_building, {}).get(self.current_floor, {})
+        self.corridor_points = parse_coordinates(corridor_data)
+
         # Загружаем сохранённую сетку для этого этажа
         grid_key = f"{self.current_building}_{self.current_floor}"
         if grid_key in self.grid_data:
@@ -606,7 +662,7 @@ class MapApp:
             self.cell_size_var.set(self.cell_size)
             self.cell_size_label.config(text=str(self.cell_size))
             self.show_grid = True
-        
+
         # Заполняем комбобоксы аудиториями
         self.update_room_combos()
 
@@ -712,35 +768,33 @@ class MapApp:
         )
 
     def connect_entrances(self):
-        """Подключить все входы к сетке"""
+        """Подключить все входы к сетке (комнаты, лестницы, лифты и входы в корпус)"""
         if not self.grid_nodes:
             messagebox.showwarning("Ошибка", "Сначала постройте сетку")
             return
-        
+
+        connected_count = 0
+
+        # 1. Подключаем обычные входы (комнаты, лестницы, лифты)
         entrances_key = f"{self.current_building}_{self.current_floor}"
         floor_entrances = self.entrances.get(entrances_key, {})
-        
-        if not floor_entrances:
-            messagebox.showinfo("Инфо", "Нет точек входа для подключения")
-            return
-        
-        connected_count = 0
+
         for obj_id, entrance_data in floor_entrances.items():
             if 'x' not in entrance_data or 'y' not in entrance_data:
                 continue
-            
+
             ex, ey = entrance_data['x'], entrance_data['y']
-            
+
             # Проверяем, не подключён ли уже
             if any(c['entrance_id'] == obj_id for c in self.entrance_connections):
                 continue
-            
+
             # Подключаем
             new_nodes, new_edges, success = connect_entrance_to_grid(
-                ex, ey, self.grid_nodes, self.grid_edges, 
+                ex, ey, self.grid_nodes, self.grid_edges,
                 self.corridor_points, self.obstacles
             )
-            
+
             if success:
                 self.grid_nodes = new_nodes
                 self.grid_edges = new_edges
@@ -748,10 +802,44 @@ class MapApp:
                     'entrance_id': obj_id,
                     'entrance_x': ex,
                     'entrance_y': ey,
-                    'connection_node_idx': len(self.grid_nodes) - 1
+                    'connection_node_idx': len(self.grid_nodes) - 1,
+                    'type': 'room_entrance'
                 })
                 connected_count += 1
-        
+
+        # 2. Подключаем входы в корпус
+        building_entrances_key = f"{self.current_building}_{self.current_floor}"
+        floor_building_entrances = self.building_entrances.get(building_entrances_key, [])
+
+        for entrance in floor_building_entrances:
+            if 'x' not in entrance or 'y' not in entrance:
+                continue
+
+            ex, ey = entrance['x'], entrance['y']
+            entrance_id = entrance.get('id', '')
+
+            # Проверяем, не подключён ли уже
+            if any(c.get('entrance_id') == entrance_id and c.get('type') == 'building_entrance' for c in self.entrance_connections):
+                continue
+
+            # Подключаем
+            new_nodes, new_edges, success = connect_entrance_to_grid(
+                ex, ey, self.grid_nodes, self.grid_edges,
+                self.corridor_points, self.obstacles
+            )
+
+            if success:
+                self.grid_nodes = new_nodes
+                self.grid_edges = new_edges
+                self.entrance_connections.append({
+                    'entrance_id': entrance_id,
+                    'entrance_x': ex,
+                    'entrance_y': ey,
+                    'connection_node_idx': len(self.grid_nodes) - 1,
+                    'type': 'building_entrance'
+                })
+                connected_count += 1
+
         self.draw_map()
         self.grid_info_label.config(text=f"🕸️ Сетка: {len(self.grid_nodes)} узлов, {len(self.grid_edges)} рёбер")
         self.status_label.config(text=f"✓ Подключено входов: {connected_count}")
@@ -994,6 +1082,9 @@ class MapApp:
 
         # Точки входа
         self.draw_entrances(scale_point)
+
+        # Входы в корпус
+        self.draw_building_entrances(scale_point)
         
         self.canvas.configure(scrollregion=(0, 0, map_width * self.scale + 100, map_height * self.scale + 100))
         
@@ -1004,37 +1095,105 @@ class MapApp:
     def draw_entrances(self, scale_point):
         entrances_key = f"{self.current_building}_{self.current_floor}"
         floor_entrances = self.entrances.get(entrances_key, {})
-        
+
         for obj_id, entrance_data in floor_entrances.items():
             if 'x' in entrance_data and 'y' in entrance_data:
                 ex, ey = scale_point(entrance_data['x'], entrance_data['y'])
-                self.canvas.create_oval(ex-6, ey-6, ex+6, ey+6, 
-                                          fill='#00FF00', outline='#006400', width=2,
-                                          tags=f'entrance_{obj_id}')
-                self.canvas.create_oval(ex-3, ey-3, ex+3, ey+3, 
-                                          fill='white', tags=f'entrance_center_{obj_id}')
+                self.canvas.create_oval(ex-6, ey-6, ex+6, ey+6,
+                                           fill='#00FF00', outline='#006400', width=2,
+                                           tags=f'entrance_{obj_id}')
+                self.canvas.create_oval(ex-3, ey-3, ex+3, ey+3,
+                                           fill='white', tags=f'entrance_center_{obj_id}')
+
+    def draw_building_entrances(self, scale_point):
+        """Отрисовка входов в корпус с учетом подключения к сетке"""
+        entrances_key = f"{self.current_building}_{self.current_floor}"
+        floor_entrances = self.building_entrances.get(entrances_key, [])
+
+        for entrance in floor_entrances:
+            if 'x' not in entrance or 'y' not in entrance:
+                continue
+
+            ex, ey = scale_point(entrance['x'], entrance['y'])
+            entrance_id = entrance.get('id', '')
+
+            # Проверяем, подключен ли вход к сетке
+            is_connected = any(
+                c.get('entrance_id') == entrance_id and c.get('type') == 'building_entrance'
+                for c in self.entrance_connections
+            )
+
+            if is_connected:
+                # Подключенный вход - зеленый круг с галочкой
+                self.canvas.create_oval(ex-10, ey-10, ex+10, ey+10,
+                                           fill='#00FF00', outline='#006400', width=3,
+                                           tags='building_entrance')
+                # Галочка (галка)
+                self.canvas.create_line(ex-4, ey, ex-1, ey+3, fill='white', width=2, tags='building_entrance')
+                self.canvas.create_line(ex-1, ey+3, ex+5, ey-3, fill='white', width=2, tags='building_entrance')
+            else:
+                # Неподключенный вход - оранжевый круг с крестиком
+                self.canvas.create_oval(ex-10, ey-10, ex+10, ey+10,
+                                           fill='orange', outline='darkorange', width=3,
+                                           tags='building_entrance')
+                # Крестик внутри
+                self.canvas.create_line(ex-5, ey, ex+5, ey, fill='white', width=2, tags='building_entrance')
+                self.canvas.create_line(ex, ey-5, ex, ey+5, fill='white', width=2, tags='building_entrance')
+
+            # Подпись
+            self.canvas.create_text(ex, ey-18, text='ВХОД', fill='darkorange',
+                                          font=('Arial', 8, 'bold'), tags='building_entrance')
                 
     def on_mouse_move(self, event):
         if not self.current_building or not self.current_floor:
             return
-        
+
         if self.preview_dot:
             self.canvas.delete(self.preview_dot)
             self.preview_dot = None
-        
+
+        if self.building_entrance_preview:
+            self.canvas.delete(self.building_entrance_preview)
+            self.building_entrance_preview = None
+
         canvas_x = self.canvas.canvasx(event.x)
         canvas_y = self.canvas.canvasy(event.y)
-        
+
         map_x = (canvas_x - self.offset_x) / self.scale
         map_y = (canvas_y - self.offset_y) / self.scale
-        
+
+        # Режим разметки входов в корпус
+        if self.building_entrance_mode:
+            if self.corridor_points:
+                nearest_x, nearest_y = find_nearest_boundary_point(map_x, map_y, self.corridor_points)
+                if nearest_x is not None:
+                    sx = nearest_x * self.scale + self.offset_x
+                    sy = nearest_y * self.scale + self.offset_y
+                    self.building_entrance_preview = self.canvas.create_oval(
+                        sx-10, sy-10, sx+10, sy+10,
+                        fill='orange', outline='darkorange', width=3,
+                        tags='preview_building_entrance'
+                    )
+                    self.info_label.config(text="Кликните для установки входа в корпус на контуре")
+                    self.current_room_label.config(text="🏢 Вход в корпус")
+                    self.coord_label.config(text=f"Координаты: ({nearest_x}, {nearest_y})")
+                    self.nearest_boundary_x = nearest_x
+                    self.nearest_boundary_y = nearest_y
+                else:
+                    self.nearest_boundary_x = None
+                    self.nearest_boundary_y = None
+                    self.info_label.config(text="Наведите на контур коридора (серый) для установки входа")
+                    self.current_room_label.config(text="")
+                    self.coord_label.config(text="")
+            return
+
         clicked_obj = None
-        
+
         for obj_id, obj_data in self.room_polygons.items():
             if point_in_polygon(map_x, map_y, obj_data['polygon']):
                 clicked_obj = obj_data
                 clicked_obj['id'] = obj_id
-                
+
                 # Проверяем, можно ли ставить входы для этого типа объекта
                 if not obj_data.get('can_enter', True):
                     # Техническое помещение - нельзя ставить входы
@@ -1043,24 +1202,24 @@ class MapApp:
                     self.current_room_label.config(text="")
                     self.coord_label.config(text="")
                     return
-                
+
                 self.current_hover_obj = clicked_obj
-                
+
                 nearest_x, nearest_y = find_nearest_boundary_point(map_x, map_y, obj_data['polygon'])
-                
+
                 if nearest_x is not None:
                     self.nearest_boundary_x = nearest_x
                     self.nearest_boundary_y = nearest_y
-                    
+
                     sx = nearest_x * self.scale + self.offset_x
                     sy = nearest_y * self.scale + self.offset_y
-                    
+
                     self.preview_dot = self.canvas.create_oval(
                         sx-8, sy-8, sx+8, sy+8,
                         fill='white', outline='red', width=2,
                         tags='preview'
                     )
-                    
+
                     self.info_label.config(text=f"Кликните для установки точки входа на контуре")
                     self.current_room_label.config(text=f"{clicked_obj['number']} ({clicked_obj['type']})")
                     self.coord_label.config(text=f"Координаты: ({nearest_x}, {nearest_y})")
@@ -1070,7 +1229,7 @@ class MapApp:
                     self.current_room_label.config(text="")
                     self.coord_label.config(text="")
                 return
-        
+
         self.current_hover_obj = None
         self.nearest_boundary_x = None
         self.nearest_boundary_y = None
@@ -1082,6 +1241,9 @@ class MapApp:
         if self.preview_dot:
             self.canvas.delete(self.preview_dot)
             self.preview_dot = None
+        if self.building_entrance_preview:
+            self.canvas.delete(self.building_entrance_preview)
+            self.building_entrance_preview = None
 
     def on_mouse_wheel(self, event):
         """Прокрутка колесиком мыши:
@@ -1100,6 +1262,12 @@ class MapApp:
             self.canvas.yview_scroll(int(-1 * (delta / 120)), "units")
 
     def on_canvas_click(self, event):
+        # Режим разметки входов в корпус
+        if self.building_entrance_mode:
+            if self.nearest_boundary_x is not None:
+                self.set_building_entrance(self.nearest_boundary_x, self.nearest_boundary_y)
+            return
+
         if not self.current_hover_obj or self.nearest_boundary_x is None:
             return
 
@@ -1132,9 +1300,58 @@ class MapApp:
 
         self.status_label.config(text=f"✓ Вход: {room_number} ({x}, {y})")
         self.info_label.config(text=f"✅ Точка входа установлена на контуре!")
+
+    def toggle_building_entrance_mode(self):
+        """Переключить режим разметки входов в корпус"""
+        self.building_entrance_mode = not self.building_entrance_mode
+        if self.building_entrance_mode:
+            self.building_entrance_btn.config(text="🏢 Вход (ВКЛ)")
+            self.info_label.config(text="Кликайте на контур коридора для установки входа в корпус")
+            self.status_label.config(text="🏢 Режим: разметка входов в корпус")
+        else:
+            self.building_entrance_btn.config(text="🏢 Вход в корпус")
+            self.info_label.config(text="Наведите на аудиторию (синюю), лестницу (красную) или лифт (жёлтый)")
+            self.status_label.config(text="")
+
+    def set_building_entrance(self, x, y):
+        """Установить вход в корпус"""
+        entrances_key = f"{self.current_building}_{self.current_floor}"
+
+        if entrances_key not in self.building_entrances:
+            self.building_entrances[entrances_key] = []
+
+        # Генерируем ID для входа
+        import uuid
+        entrance_id = str(uuid.uuid4())
+
+        self.building_entrances[entrances_key].append({
+            'id': entrance_id,
+            'x': x,
+            'y': y,
+            'name': 'Вход в корпус'
+        })
+
+        self.draw_map()
+        self.status_label.config(text=f"✓ Вход в корпус: ({x}, {y})")
+        self.info_label.config(text="✅ Вход в корпус установлен на контуре коридора!")
+
+    def clear_building_entrances(self):
+        """Очистить входы в корпус для текущего этажа"""
+        if not self.current_building or not self.current_floor:
+            return
+        entrances_key = f"{self.current_building}_{self.current_floor}"
+        if entrances_key in self.building_entrances:
+            del self.building_entrances[entrances_key]
+            self.draw_map()
+            self.status_label.config(text="🗑️ Входы в корпус удалены")
+
+    def load_building_entrances_for_floor(self):
+        """Загрузить входы в корпус для текущего этажа (обновление с диска)"""
+        self.building_entrances = load_building_entrances()
         
     def save_entrances_ui(self):
         save_entrances(self.entrances)
+        save_building_entrances(self.building_entrances)
         self.status_label.config(text=f"💾 Входы сохранены в {ENTRANCES_FILE}")
         
     def clear_entrances(self):

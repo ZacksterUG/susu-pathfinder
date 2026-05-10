@@ -281,14 +281,14 @@ class MultiFloorPathFinder:
             node = grid["nodes"][li]
             return _distance(node["x"], node["y"], end_node["x"], end_node["y"])
 
-        g_score: dict[int, float] = {gid: float("inf") for gid in self.global_adj}
+        g_score = dict.fromkeys(self.global_adj, float("inf"))
         g_score[start_gid] = 0
 
-        f_score: dict[int, float] = {gid: float("inf") for gid in self.global_adj}
+        f_score = dict.fromkeys(self.global_adj, float("inf"))
         f_score[start_gid] = h(start_gid)
 
-        open_set: list[tuple[float, int]] = [(f_score[start_gid], start_gid)]
-        came_from: dict[int, int] = {}
+        open_set = [(f_score[start_gid], start_gid)]
+        came_from = {}
 
         while open_set:
             _, current = heapq.heappop(open_set)
@@ -310,3 +310,177 @@ class MultiFloorPathFinder:
                     heapq.heappush(open_set, (f, neighbor))
 
         return None
+
+    async def find_path_to_point(
+        self,
+        building_id: str,
+        start_room: dict,
+        end_x: float,
+        end_y: float,
+        end_floor: str,
+        all_technical: list[dict],
+    ) -> dict:
+        """Построить путь от комнаты до точки (end_x, end_y) на этаже end_floor."""
+        start_floor_num = start_room["floor_number"]
+
+        await self.load_all_floors(building_id)
+        if not self.grid_data:
+            return {"found": False, "error": "No grid data available"}
+
+        self._build_global_graph(all_technical)
+
+        # Координаты начальной точки
+        start_x, start_y = self._get_point_coords(start_room)
+
+        # Находим ближайший узел к начальной точке
+        start_key = f"{building_id}_{start_floor_num}"
+        start_grid = self.grid_data.get(start_key)
+        if not start_grid:
+            return {"found": False, "error": "Grid not found for start floor"}
+        start_local = _nearest_node_index(start_grid["nodes"], start_x, start_y)
+        start_global = self.local_to_global.get((start_floor_num, start_local))
+        if start_global is None:
+            return {"found": False, "error": "Could not find nearest start node"}
+
+        # Находим ближайший узел к конечной точке
+        end_key = f"{building_id}_{end_floor}"
+        end_grid = self.grid_data.get(end_key)
+        if not end_grid:
+            return {"found": False, "error": "Grid not found for end floor"}
+        end_local = _nearest_node_index(end_grid["nodes"], end_x, end_y)
+        end_global = self.local_to_global.get((end_floor, end_local))
+        if end_global is None:
+            return {"found": False, "error": "Could not find nearest end node"}
+
+        # Поиск пути
+        path = self._astar_global(start_global, end_global)
+        if not path:
+            return {"found": False, "error": "No path found"}
+
+        # Формирование результата
+        segments: dict = {}
+        total_length = 0.0
+        prev_fn = None
+        transitions = []
+
+        for gid_node in path:
+            fn, li = self.global_to_local[gid_node]
+            node = self.grid_data.get(f"{building_id}_{fn}", {}).get("nodes", [])[li]
+            if fn not in segments:
+                segments[fn] = []
+            segments[fn].append({"x": node["x"], "y": node["y"]})
+            if prev_fn is not None and prev_fn != fn:
+                transitions.append((prev_fn, fn))
+            prev_fn = fn
+
+        for i in range(1, len(path)):
+            n1_data = self.global_to_local[path[i - 1]]
+            n2_data = self.global_to_local[path[i]]
+            n1_fn, n1_li = n1_data
+            n2_fn, n2_li = n2_data
+            g1 = self.grid_data.get(f"{building_id}_{n1_fn}")
+            g2 = self.grid_data.get(f"{building_id}_{n2_fn}")
+            if g1 and g2 and n1_fn == n2_fn:
+                n1 = g1["nodes"][n1_li]
+                n2 = g2["nodes"][n2_li]
+                total_length += _distance(n1["x"], n1["y"], n2["x"], n2["y"])
+            else:
+                total_length += 50.0
+
+        path_segments = []
+        for fn, nodes in segments.items():
+            path_segments.append({"floor_number": fn, "nodes": nodes})
+
+        return {
+            "found": True,
+            "path": path_segments,
+            "total_length": round(total_length, 2),
+            "floor_transitions": transitions,
+        }
+
+    async def find_path_from_point(
+        self,
+        building_id: str,
+        start_x: float,
+        start_y: float,
+        start_floor: str,
+        end_room: dict,
+        all_technical: list[dict],
+    ) -> dict:
+        """Построить путь от точки (start_x, start_y) на этаже start_floor до комнаты."""
+        end_floor_num = end_room["floor_number"]
+
+        await self.load_all_floors(building_id)
+        if not self.grid_data:
+            return {"found": False, "error": "No grid data available"}
+
+        self._build_global_graph(all_technical)
+
+        # Координаты конечной точки
+        end_x, end_y = self._get_point_coords(end_room)
+
+        # Находим ближайший узел к начальной точке
+        start_key = f"{building_id}_{start_floor}"
+        start_grid = self.grid_data.get(start_key)
+        if not start_grid:
+            return {"found": False, "error": "Grid not found for start floor"}
+        start_local = _nearest_node_index(start_grid["nodes"], start_x, start_y)
+        start_global = self.local_to_global.get((start_floor, start_local))
+        if start_global is None:
+            return {"found": False, "error": "Could not find nearest start node"}
+
+        # Находим ближайший узел к конечной точке
+        end_key = f"{building_id}_{end_floor_num}"
+        end_grid = self.grid_data.get(end_key)
+        if not end_grid:
+            return {"found": False, "error": "Grid not found for end floor"}
+        end_local = _nearest_node_index(end_grid["nodes"], end_x, end_y)
+        end_global = self.local_to_global.get((end_floor_num, end_local))
+        if end_global is None:
+            return {"found": False, "error": "Could not find nearest end node"}
+
+        # Поиск пути
+        path = self._astar_global(start_global, end_global)
+        if not path:
+            return {"found": False, "error": "No path found"}
+
+        # Формирование результата
+        segments: dict = {}
+        total_length = 0.0
+        prev_fn = None
+        transitions = []
+
+        for gid_node in path:
+            fn, li = self.global_to_local[gid_node]
+            node = self.grid_data.get(f"{building_id}_{fn}", {}).get("nodes", [])[li]
+            if fn not in segments:
+                segments[fn] = []
+            segments[fn].append({"x": node["x"], "y": node["y"]})
+            if prev_fn is not None and prev_fn != fn:
+                transitions.append((prev_fn, fn))
+            prev_fn = fn
+
+        for i in range(1, len(path)):
+            n1_data = self.global_to_local[path[i - 1]]
+            n2_data = self.global_to_local[path[i]]
+            n1_fn, n1_li = n1_data
+            n2_fn, n2_li = n2_data
+            g1 = self.grid_data.get(f"{building_id}_{n1_fn}")
+            g2 = self.grid_data.get(f"{building_id}_{n2_fn}")
+            if g1 and g2 and n1_fn == n2_fn:
+                n1 = g1["nodes"][n1_li]
+                n2 = g2["nodes"][n2_li]
+                total_length += _distance(n1["x"], n1["y"], n2["x"], n2["y"])
+            else:
+                total_length += 50.0
+
+        path_segments = []
+        for fn, nodes in segments.items():
+            path_segments.append({"floor_number": fn, "nodes": nodes})
+
+        return {
+            "found": True,
+            "path": path_segments,
+            "total_length": round(total_length, 2),
+            "floor_transitions": transitions,
+        }

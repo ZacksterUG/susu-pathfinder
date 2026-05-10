@@ -45,6 +45,15 @@ export const fetchEntrances = async (
   return data;
 };
 
+export const fetchBuildingEntrances = async (
+  buildingId: string
+): Promise<Entrance[]> => {
+  const { data } = await api.get<Entrance[]>(
+    `/building_entrances?building_id=${buildingId}`
+  );
+  return data;
+};
+
 export const findPath = async (
   buildingId: string,
   startObjectId: string,

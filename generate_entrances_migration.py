@@ -34,14 +34,16 @@ def generate_insert_sql(entrances_data: dict) -> str:
         "-- Миграция: перенос данных из entrances.json в map_app.entrance",
         "-- Сгенерировано автоматически",
         "",
-        "INSERT INTO map_app.entrance (object_id, object_type, building_id, floor_number, x, y, room_number) VALUES"
     ]
 
     values = []
     stats = {"total": 0, "by_type": {}}
 
+    # 1. Обычные входы (комнаты, лестницы, лифты)
     for composite_key, objects in entrances_data.items():
-        # Ключ вида "buildingId_floor"
+        if composite_key.startswith("_"):
+            continue
+
         parts = composite_key.rsplit("_", 1)
         if len(parts) != 2:
             continue
@@ -66,8 +68,46 @@ def generate_insert_sql(entrances_data: dict) -> str:
             stats["total"] += 1
             stats["by_type"][obj_type] = stats["by_type"].get(obj_type, 0) + 1
 
-    sql_lines.append(',\n'.join(values))
-    sql_lines.append(";")
+    # 2. Входы в корпус
+    be_values = []
+    building_entrances = entrances_data.get("_building_entrances", {})
+    for composite_key, entrances in building_entrances.items():
+        parts = composite_key.rsplit("_", 1)
+        if len(parts) != 2:
+            continue
+
+        building_id = parts[0]
+        floor_number = parts[1]
+
+        for entrance in entrances:
+            obj_id = entrance.get("id", "")
+            x = entrance.get("x", 0)
+            y = entrance.get("y", 0)
+            name = entrance.get("name", "вход")
+
+            name_escaped = name.replace("'", "''")
+
+            be_values.append(
+                f"    ('{obj_id}', 'building_entrance', '{building_id}', "
+                f"'{floor_number}', {x}, {y}, '{name_escaped}')"
+            )
+
+            stats["total"] += 1
+            stats["by_type"]["building_entrance"] = stats["by_type"].get("building_entrance", 0) + 1
+
+    # Формируем SQL
+    if values:
+        sql_lines.append("INSERT INTO map_app.entrance (object_id, object_type, building_id, floor_number, x, y, room_number) VALUES")
+        sql_lines.append(',\n'.join(values))
+        sql_lines.append(";")
+
+    if be_values:
+        if values:
+            sql_lines.append("")
+            sql_lines.append("-- Входы в корпус")
+        sql_lines.append("INSERT INTO map_app.entrance (object_id, object_type, building_id, floor_number, x, y, room_number) VALUES")
+        sql_lines.append(',\n'.join(be_values))
+        sql_lines.append(";")
 
     # Статистика
     print(f"\n📊 Статистика входов:")

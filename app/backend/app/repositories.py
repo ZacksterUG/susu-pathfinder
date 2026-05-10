@@ -139,6 +139,24 @@ async def get_entrances_by_floor(building_id: str, floor_number: str) -> list[di
         return result
 
 
+async def get_building_entrances(building_id: str) -> list[dict]:
+    """Получить все входы/выходы в корпус (object_type = 'building_entrance')"""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        rows = await conn.fetch(
+            "SELECT object_id, object_type, building_id, floor_number, x, y, room_number "
+            "FROM map_app.entrance WHERE building_id = $1 AND object_type = 'building_entrance'",
+            building_id,
+        )
+        result = []
+        for r in rows:
+            d = dict(r)
+            d["object_id"] = str(d["object_id"])
+            d["building_id"] = str(d["building_id"])
+            result.append(d)
+        return result
+
+
 # ─── Grid ────────────────────────────────────────────────────
 
 async def get_grid_by_floor(building_id: str, floor_number: str) -> Optional[dict]:

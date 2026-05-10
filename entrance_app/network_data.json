@@ -232,5 +232,371 @@
         ]
       }
     ]
+  },
+  "e9e0d43e-f419-4f97-99d4-694c06d738d8": {
+    "networks": [
+      {
+        "network_id": "d62a43b2-1405-4736-ad1b-1511ebb2561a",
+        "type": "elevator",
+        "objects": [
+          {
+            "id": "4af405a0-d76e-4956-9edd-51af66972e43",
+            "floor": "0"
+          },
+          {
+            "id": "4f86a8c8-ea16-430e-ba6c-168802965dd9",
+            "floor": "1"
+          },
+          {
+            "id": "00c21be3-145f-482b-a89d-54e4262a058a",
+            "floor": "2"
+          },
+          {
+            "id": "3f89cc4b-4bfe-45bb-bc1c-eb77ae297880",
+            "floor": "3"
+          },
+          {
+            "id": "abb80027-bbec-4ebe-83de-0b3545821118",
+            "floor": "4"
+          },
+          {
+            "id": "dd32230c-8941-43a1-885d-12531aece414",
+            "floor": "5"
+          },
+          {
+            "id": "a95fb8d4-33e7-4a85-ba4e-129a56ab091b",
+            "floor": "6"
+          },
+          {
+            "id": "16956cc0-f7f5-4943-be99-4d9922c5fe0e",
+            "floor": "7"
+          },
+          {
+            "id": "b40298b9-6cc8-4d6f-8fcc-d3bc1b3c00b5",
+            "floor": "8"
+          },
+          {
+            "id": "d5838419-81da-4f00-93f4-399480a93484",
+            "floor": "9"
+          }
+        ]
+      },
+      {
+        "network_id": "72138675-64ae-4a1e-af9f-473b8a6f794a",
+        "type": "elevator",
+        "objects": [
+          {
+            "id": "db93e343-03a0-43d9-b314-4a4e45bb2f0a",
+            "floor": "0"
+          },
+          {
+            "id": "99ee3f68-42e8-4ee1-aa2c-605aa830e798",
+            "floor": "1"
+          },
+          {
+            "id": "5372272f-9225-4b2d-b8cb-83f5446b621b",
+            "floor": "2"
+          },
+          {
+            "id": "3f2c9a96-4a7d-4545-aeed-fa1a452f7c7e",
+            "floor": "3"
+          },
+          {
+            "id": "be4335c4-a22b-4a10-9646-66a1828ccf0f",
+            "floor": "4"
+          },
+          {
+            "id": "b23878a3-9dcf-44e0-8d24-ad19119568e4",
+            "floor": "5"
+          },
+          {
+            "id": "c6f33ca1-f9a5-4573-8d45-82a480db66a8",
+            "floor": "6"
+          },
+          {
+            "id": "b68cda89-2375-464b-aca1-dc6f34f2a457",
+            "floor": "7"
+          },
+          {
+            "id": "9b8d2fe7-854c-4fe3-a75d-2f80cd01f7bb",
+            "floor": "8"
+          },
+          {
+            "id": "59287d14-d796-4182-aeda-21eebfd7d768",
+            "floor": "9"
+          }
+        ]
+      },
+      {
+        "network_id": "e85770a1-14c0-4e89-a75f-38c05a776f35",
+        "type": "elevator",
+        "objects": [
+          {
+            "id": "8762c838-7dcf-4aa0-8583-aa7c9cfb4760",
+            "floor": "0"
+          },
+          {
+            "id": "aca0f402-64c8-4ead-a213-8a44be674b6a",
+            "floor": "1"
+          },
+          {
+            "id": "46357d07-6d16-4527-a30a-9eec0541057d",
+            "floor": "2"
+          },
+          {
+            "id": "c2b0505f-4882-4a07-abd3-35a83ea3a11d",
+            "floor": "3"
+          },
+          {
+            "id": "23c29ef4-502d-4c6f-88ff-1ed24e8ef9cb",
+            "floor": "4"
+          },
+          {
+            "id": "54f470c5-c0d9-4003-94d2-20d1781c131a",
+            "floor": "5"
+          },
+          {
+            "id": "27a3f165-0646-4376-a1ca-f2e943ea2fc2",
+            "floor": "6"
+          },
+          {
+            "id": "786c0380-fc46-47b3-ac9d-d34a77a68054",
+            "floor": "7"
+          },
+          {
+            "id": "7f36c593-1e94-4719-98fa-fbaebfe47921",
+            "floor": "8"
+          },
+          {
+            "id": "b67460a8-59cf-4581-a9b7-c2ba4b6263c2",
+            "floor": "9"
+          }
+        ]
+      },
+      {
+        "network_id": "d0e3a39d-656f-4183-b16b-8c282ef58a74",
+        "type": "elevator",
+        "objects": [
+          {
+            "id": "e7b8793e-ed79-48f5-b198-d891a6d354e1",
+            "floor": "0"
+          },
+          {
+            "id": "cad44d44-69c4-4128-ba05-026c5ba3c302",
+            "floor": "1"
+          },
+          {
+            "id": "048f28dd-71a0-4585-9bad-f5cf90a1f8e8",
+            "floor": "2"
+          },
+          {
+            "id": "2a8ff6bf-adef-46d7-9087-f20d2531c569",
+            "floor": "3"
+          },
+          {
+            "id": "f56bcfef-adb6-40cf-b970-2080bbfbb785",
+            "floor": "4"
+          },
+          {
+            "id": "c3112e71-f395-4cf6-8f0f-eabadae485d6",
+            "floor": "5"
+          },
+          {
+            "id": "c468c2dc-e0d7-465f-b254-6ef40be6a8b4",
+            "floor": "6"
+          },
+          {
+            "id": "2dc10e50-4119-45f2-83c9-7938e51e678f",
+            "floor": "7"
+          },
+          {
+            "id": "10903c61-1f2c-4590-9e77-b0c0706e9aa6",
+            "floor": "8"
+          },
+          {
+            "id": "557c3d99-7c74-4556-82f3-09e0ba66c8b4",
+            "floor": "9"
+          }
+        ]
+      },
+      {
+        "network_id": "339157b3-2b5e-4655-b775-12a9fa35a4b5",
+        "type": "stairs",
+        "objects": [
+          {
+            "id": "2a4c4bc5-e7b5-47ce-adc2-23a06bd2410e",
+            "floor": "9"
+          },
+          {
+            "id": "c66af5cf-1375-46b8-8bd4-eefca84a07dd",
+            "floor": "10"
+          }
+        ]
+      },
+      {
+        "network_id": "76937006-772e-4e06-b40c-b8aa011bd121",
+        "type": "stairs",
+        "objects": [
+          {
+            "id": "3148fc0f-3adc-42bc-a0c5-875aab702f7f",
+            "floor": "0"
+          },
+          {
+            "id": "5128c9bb-c25d-411a-8f5d-dc9e9f17ccc2",
+            "floor": "1"
+          }
+        ]
+      },
+      {
+        "network_id": "16f3dabd-234c-4cb3-aa89-de01ed0dd602",
+        "type": "stairs",
+        "objects": [
+          {
+            "id": "701cbe8c-acc5-4047-a653-61f787d6f47e",
+            "floor": "0"
+          },
+          {
+            "id": "3cfdf005-1e33-4914-8b41-632bb61c8d14",
+            "floor": "1"
+          }
+        ]
+      },
+      {
+        "network_id": "edc26ddb-c575-460c-8d61-17af889dbfff",
+        "type": "stairs",
+        "objects": [
+          {
+            "id": "c5a33fce-1309-4a08-98e9-e177c0cd1231",
+            "floor": "0"
+          },
+          {
+            "id": "e63807ce-b18b-4407-b310-96cbc8db73fb",
+            "floor": "1"
+          },
+          {
+            "id": "4eff69fb-d819-4858-af55-d1c7bf3125d7",
+            "floor": "2"
+          },
+          {
+            "id": "eeb13423-0730-4fa7-8d96-9aa1396e1552",
+            "floor": "3"
+          }
+        ]
+      },
+      {
+        "network_id": "51fca84f-fcaf-4242-8d90-e08267332ad0",
+        "type": "stairs",
+        "objects": [
+          {
+            "id": "e5ab0182-1d5d-482b-b044-4fc5621faeac",
+            "floor": "3"
+          },
+          {
+            "id": "18e0a720-2786-49c4-b865-db4105a7c3f6",
+            "floor": "2"
+          },
+          {
+            "id": "9a5a210d-5fe0-4f30-b958-44999803f753",
+            "floor": "1"
+          },
+          {
+            "id": "968412b6-173d-4463-91d1-7c837dda3618",
+            "floor": "0"
+          }
+        ]
+      },
+      {
+        "network_id": "4c7974cb-74b8-410c-b062-e2ce1b690950",
+        "type": "stairs",
+        "objects": [
+          {
+            "id": "15fa43c2-e8eb-4dec-88f7-e3045298cc09",
+            "floor": "0"
+          },
+          {
+            "id": "8915ebcf-978f-4439-a5bc-6e71558a0d5a",
+            "floor": "1"
+          },
+          {
+            "id": "a6f2d9ff-ab2a-4371-9e86-f07f7df83272",
+            "floor": "2"
+          },
+          {
+            "id": "2659e8ca-32d8-4bfc-8eaf-56cc187e4012",
+            "floor": "3"
+          },
+          {
+            "id": "b96a3191-7882-480a-a172-09c412e098a4",
+            "floor": "4"
+          },
+          {
+            "id": "bb53538c-0a1f-46cd-b80f-b23eb4db122f",
+            "floor": "5"
+          },
+          {
+            "id": "f03af3c1-e2b3-4d28-bb25-9975a671dc2b",
+            "floor": "6"
+          },
+          {
+            "id": "9032d69c-04b8-41e8-bb38-97e32a07d09f",
+            "floor": "7"
+          },
+          {
+            "id": "9a8649e8-3e95-4a88-8b0b-f60fbdd54f3d",
+            "floor": "8"
+          },
+          {
+            "id": "bbca2ea8-4608-4d7e-acf5-91c6fd76387a",
+            "floor": "9"
+          }
+        ]
+      },
+      {
+        "network_id": "6824c7c1-84e7-4ba3-8e01-c70fbf321662",
+        "type": "stairs",
+        "objects": [
+          {
+            "id": "d6ce7f8a-4a43-4da2-b2e5-e742fce14988",
+            "floor": "0"
+          },
+          {
+            "id": "19c321ac-f6b2-412b-966d-cb12f5bea6e0",
+            "floor": "1"
+          },
+          {
+            "id": "018de6a0-cace-4e67-bddd-0e3eb0489bd1",
+            "floor": "2"
+          },
+          {
+            "id": "ab3686bc-5ce4-42c7-9ef4-a578eedf7370",
+            "floor": "3"
+          },
+          {
+            "id": "11a085fb-d4a4-41ba-9548-558b6d468f70",
+            "floor": "4"
+          },
+          {
+            "id": "34d819a7-0e61-4a4f-ace4-06e0c4abca3d",
+            "floor": "5"
+          },
+          {
+            "id": "25af7625-6a2b-4f10-a0d0-af61c356231c",
+            "floor": "6"
+          },
+          {
+            "id": "3703f357-8df1-48d5-babb-f8bde0bbdbe3",
+            "floor": "7"
+          },
+          {
+            "id": "8217591a-b173-4796-9b4e-195674391b18",
+            "floor": "8"
+          },
+          {
+            "id": "9492e00b-fe6e-4250-b03d-27036cbd7161",
+            "floor": "9"
+          }
+        ]
+      }
+    ]
   }
 }

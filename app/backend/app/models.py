@@ -82,3 +82,7 @@ class PathResponse(BaseModel):
     total_length: float = 0.0
     floor_transitions: list[tuple[str, str]] = []
     error: Optional[str] = None
+    # Для межкорпусных маршрутов
+    inter_building: Optional[bool] = None
+    path_part1: Optional[list[PathSegment]] = None
+    path_part2: Optional[list[PathSegment]] = None
